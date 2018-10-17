@@ -134,3 +134,67 @@ Once build and deployment are done you should be able to invoke the function ove
 ```bash
 riff service invoke session-randomizer --text -- -w '\n' -d monday
 ```
+
+## Add Channels
+
+Create a sessions channel:
+
+```bash
+riff channel create days --cluster-bus stub
+riff channel create sessions --cluster-bus stub
+```
+
+Create a subscription for days channel:
+
+```bash
+riff subscription create --channel days --subscriber session-randomizer --reply-to sessions
+```
+
+Use the correlator to be able to create messages in the channel over http
+
+```bash
+riff service create correlator --image projectriff/correlator:s1p2018
+```
+
+Send a message to the days channel
+
+```bash
+riff service invoke correlator /days --text -- -d monday -v
+```
+
+Use the existing command project from project riff to print out the sessions
+https://github.com/projectriff-samples/command-hello
+
+```bash
+riff function create command greet --git-repo https://github.com/projectriff-samples/command-hello --image gcr.io/$GCP_PROJECT/greet --artifact greet.sh --verbose
+```
+
+Invoke the function the
+
+```bash
+riff service invoke greet --text -- -d "European Technology Architecture Workshop"
+```
+
+Create a channel for the replies
+
+```bash
+riff channel create replies --cluster-bus stub
+```
+
+Create a subscription for the greet function
+
+```bash
+riff subscription create --channel sessions --subscriber greet --reply-to replies
+```
+
+Push the events of the replies channel back to the correlator
+
+```bash
+riff subscription create --channel replies --subscriber correlator
+```
+
+Call the correlator waiting for the response in the replies channel:
+
+```bash
+riff service invoke correlator /days --text -- -d monday -v  -H "Knative-Blocking-Request:true"
+```
