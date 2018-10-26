@@ -16,13 +16,13 @@ gcloud init
 If you are already logged in to the google cloud via gcloud make sure gcloud points to the right project.
 
 ```bash
-gcloud config set project PROJECT_ID
+gcloud config configurations activate <PROJECT_NAME>
 ```
 
-SET your PROJECT_ID into a environment variable
+SET your `PROJECT_ID` into a environment variable
 
 ```bash
-export GCP_PROJECT= ???
+export GCP_PROJECT=$(gcloud config list --format 'value(core.project)')
 ```
 
 - Install the Kubernetes commandline client
