@@ -84,25 +84,31 @@ kubectl create clusterrolebinding cluster-admin-binding \
 
 ## Create and initalize Google Container Registry
 
+Choose a service account name
+
+```bash
+SERVICE_ACCOUNT_NAME="$SERVICE_ACCOUNT_NAME"
+```
+
 Create a service account
 
 ```bash
-gcloud iam service-accounts create publisher
+gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
 ```
 
 Bind the service account to the `storage.admin` role
 
 ```bash
 gcloud projects add-iam-policy-binding $GCP_PROJECT \
-    --member serviceAccount:publisher@$GCP_PROJECT.iam.gserviceaccount.com \
+    --member serviceAccount:$SERVICE_ACCOUNT_NAME@$GCP_PROJECT.iam.gserviceaccount.com \
     --role roles/storage.admin
 ```
 
-Create an authentication key using the publisher account. We will need them later to initialize riff.
+Create an authentication key using the service account. We will need them later to initialize riff.
 
 ```bash
 gcloud iam service-accounts keys create \
-  --iam-account "publisher@$GCP_PROJECT.iam.gserviceaccount.com" \
+  --iam-account "$SERVICE_ACCOUNT_NAME@$GCP_PROJECT.iam.gserviceaccount.com" \
   gcr-storage-admin.json
 ```
 
