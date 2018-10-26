@@ -87,7 +87,7 @@ kubectl create clusterrolebinding cluster-admin-binding \
 Choose a service account name
 
 ```bash
-SERVICE_ACCOUNT_NAME="$SERVICE_ACCOUNT_NAME"
+SERVICE_ACCOUNT_NAME="publisher"
 ```
 
 Create a service account
