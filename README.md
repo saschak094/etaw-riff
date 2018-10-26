@@ -204,3 +204,11 @@ Call the correlator waiting for the response in the replies channel:
 ```bash
 riff service invoke correlator /days --text -- -d monday -v  -H "Knative-Blocking-Request:true"
 ```
+
+## Cleanup
+
+```bash
+gcloud container clusters delete $CLUSTER_NAME --quiet
+gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$GCP_PROJECT.iam.gserviceaccount.com --quiet
+rm gcr-storage-admin.json
+```
