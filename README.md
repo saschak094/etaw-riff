@@ -16,13 +16,13 @@ gcloud init
 If you are already logged in to the google cloud via gcloud make sure gcloud points to the right project.
 
 ```bash
-gcloud config set project PROJECT_ID
+gcloud config configurations activate <PROJECT_NAME>
 ```
 
-SET your PROJECT_ID into a environment variable
+SET your `PROJECT_ID` into a environment variable
 
 ```bash
-export GCP_PROJECT= ???
+export GCP_PROJECT=$(gcloud config list --format 'value(core.project)')
 ```
 
 - Install the Kubernetes commandline client
@@ -84,25 +84,31 @@ kubectl create clusterrolebinding cluster-admin-binding \
 
 ## Create and initalize Google Container Registry
 
+Choose a service account name
+
+```bash
+SERVICE_ACCOUNT_NAME="publisher"
+```
+
 Create a service account
 
 ```bash
-gcloud iam service-accounts create publisher
+gcloud iam service-accounts create $SERVICE_ACCOUNT_NAME
 ```
 
 Bind the service account to the `storage.admin` role
 
 ```bash
 gcloud projects add-iam-policy-binding $GCP_PROJECT \
-    --member serviceAccount:publisher@$GCP_PROJECT.iam.gserviceaccount.com \
+    --member serviceAccount:$SERVICE_ACCOUNT_NAME@$GCP_PROJECT.iam.gserviceaccount.com \
     --role roles/storage.admin
 ```
 
-Create an authentication key using the publisher account. We will need them later to initialize riff.
+Create an authentication key using the service account. We will need them later to initialize riff.
 
 ```bash
 gcloud iam service-accounts keys create \
-  --iam-account "publisher@$GCP_PROJECT.iam.gserviceaccount.com" \
+  --iam-account "$SERVICE_ACCOUNT_NAME@$GCP_PROJECT.iam.gserviceaccount.com" \
   gcr-storage-admin.json
 ```
 
@@ -197,4 +203,12 @@ Call the correlator waiting for the response in the replies channel:
 
 ```bash
 riff service invoke correlator /joke-req --text -- -d fun -v  -H "Knative-Blocking-Request:true"
+```
+
+## Cleanup
+
+```bash
+gcloud container clusters delete $CLUSTER_NAME --quiet
+gcloud iam service-accounts delete $SERVICE_ACCOUNT_NAME@$GCP_PROJECT.iam.gserviceaccount.com --quiet
+rm gcr-storage-admin.json
 ```
