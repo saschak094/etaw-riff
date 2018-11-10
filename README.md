@@ -1,6 +1,6 @@
 # etaw-riff
 
-Google offers a 300$ free trial for Google Cloud which is good option to run a managed Kubernetes cluster.
+Google offers a 300\$ free trial for Google Cloud which is good option to run a managed Kubernetes cluster.
 
 ## Prerequisites
 
@@ -126,13 +126,13 @@ riff namespace init default --gcr gcr-storage-admin.json
 Build and deploy the already prepared function
 
 ```bash
-riff function create node session-randomizer --git-repo https://github.com/saschak094/riff-sessions.git --artifact sessions.js --image=gcr.io/$GCP_PROJECT/session-randomizer --wait --verbose
+riff function create node joke-generator --git-repo https://github.com/saschak094/riff-jokes.git --artifact jokes.js --image=gcr.io/$GCP_PROJECT/joke-generator --wait --verbose
 ```
 
 Once build and deployment are done you should be able to invoke the function over http using the riff cli
 
 ```bash
-riff service invoke session-randomizer --text -- -w '\n' -d monday
+riff service invoke joke-generator --text -- -w '\n' -d fun
 ```
 
 ## Add Channels
@@ -140,14 +140,14 @@ riff service invoke session-randomizer --text -- -w '\n' -d monday
 Create a sessions channel:
 
 ```bash
-riff channel create days --cluster-bus stub
-riff channel create sessions --cluster-bus stub
+riff channel create joke-req --cluster-bus stub
+riff channel create jokes --cluster-bus stub
 ```
 
 Create a subscription for days channel:
 
 ```bash
-riff subscription create --channel days --subscriber session-randomizer --reply-to sessions
+riff subscription create --channel joke-req --subscriber joke-generator --reply-to jokes
 ```
 
 Use the correlator to be able to create messages in the channel over http
@@ -156,10 +156,10 @@ Use the correlator to be able to create messages in the channel over http
 riff service create correlator --image projectriff/correlator:s1p2018
 ```
 
-Send a message to the days channel
+Send a message to the joke-req channel
 
 ```bash
-riff service invoke correlator /days --text -- -d monday -v
+riff service invoke correlator /joke-req --text -- -d fun -v
 ```
 
 Use the existing command project from project riff to print out the sessions
@@ -184,7 +184,7 @@ riff channel create replies --cluster-bus stub
 Create a subscription for the greet function
 
 ```bash
-riff subscription create --channel sessions --subscriber greet --reply-to replies
+riff subscription create --channel jokes --subscriber greet --reply-to replies
 ```
 
 Push the events of the replies channel back to the correlator
@@ -196,5 +196,5 @@ riff subscription create --channel replies --subscriber correlator
 Call the correlator waiting for the response in the replies channel:
 
 ```bash
-riff service invoke correlator /days --text -- -d monday -v  -H "Knative-Blocking-Request:true"
+riff service invoke correlator /joke-req --text -- -d fun -v  -H "Knative-Blocking-Request:true"
 ```
