@@ -132,7 +132,7 @@ riff namespace init default --gcr gcr-storage-admin.json
 Build and deploy the already prepared function
 
 ```bash
-riff function create node joke-generator --git-repo https://github.com/saschak094/riff-jokes.git --artifact jokes.js --image=gcr.io/$GCP_PROJECT/joke-generator --wait --verbose
+riff function create joke-generator --invoker node --git-repo https://github.com/saschak094/riff-jokes.git --artifact jokes.js --image=gcr.io/$GCP_PROJECT/joke-generator --wait --verbose
 ```
 
 Once build and deployment are done you should be able to invoke the function over http using the riff cli
@@ -178,7 +178,7 @@ riff function create command greet --git-repo https://github.com/projectriff-sam
 Invoke the function the
 
 ```bash
-riff service invoke greet --text -- -d "European Technology Architecture Workshop"
+riff service invoke greet --text -- -d "Kubernetes Community Call" -w "\n"
 ```
 
 Create a channel for the replies
